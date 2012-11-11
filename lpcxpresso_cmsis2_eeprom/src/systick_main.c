@@ -13,6 +13,8 @@ __CRP const unsigned int CRP_WORD = CRP_NO_CRP ;
 #include "uart.h"
 #include "logger.h"
 #include "s0_input.h"
+#include "i2ctest.h"
+#include "i2c.h"
 
 volatile uint32_t msTicks; // counter for 1ms SysTicks
 extern volatile unsigned int eint3_count;
@@ -85,47 +87,29 @@ int main(void) {
 
 		uint32_t triggerValue = s0_triggered(0);
 		if (triggerValue) {
-			logger_logString("s0_0:");
-			logger_logNumberln(triggerValue);
+			logger_logStringln("s0_0");
 			led_signal(0, 30, msTicks);
+			logger_logString("writing to eeprom ...");
+			led_on(2);
+			i2ctest_wr();
+			led_off(2);
+			logger_logStringln("done");
 		}
 
 		triggerValue = s0_triggered(1);
 		if (triggerValue) {
-			logger_logString("s0_1:");
-			logger_logNumberln(triggerValue);
+			logger_logStringln("s0_1");
 			led_signal(1, 30, msTicks);
+			led_on(2);
+			i2ctest_rd();
+			led_off(2);
+			logger_logStringln("EEPROM CONTENT:");
+			logger_logNumberln(I2CSlaveBuffer[0]);
+			logger_logNumberln(I2CSlaveBuffer[1]);
+			logger_logNumberln(I2CSlaveBuffer[2]);
+			logger_logNumberln(I2CSlaveBuffer[3]);
 		}
 
-
-		/*
-		if (!s0_active) {
-			s0_newState = ~LPC_GPIO0->FIOPIN & (S0_INPUT0 | S0_INPUT1);
-			if (s0_oldState != s0_newState) {
-				s0_active = 1;
-				s0_msticks = msTicks;
-			}
-		}
-
-		if (s0_active && s0_msticks != msTicks) {
-			s0_state = ~LPC_GPIO0->FIOPIN & (S0_INPUT0 | S0_INPUT1 );
-			logger_logNumberln(s0_state);
-			if (s0_state == s0_newState) {
-				// falling edge
-				if ((s0_newState & S0_INPUT0) > 0) {
-					led2_invert();
-				}
-
-				// rising edge
-				if ((s0_newState & S0_INPUT1) == 0) {
-					led2_invert();
-				}
-
-			}
-			s0_oldState = s0_state;
-			s0_active = 0;
-		}
-		 */
 	}
 	return 0 ;
 }
