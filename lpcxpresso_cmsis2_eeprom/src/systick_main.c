@@ -13,8 +13,7 @@ __CRP const unsigned int CRP_WORD = CRP_NO_CRP ;
 #include "uart.h"
 #include "logger.h"
 #include "s0_input.h"
-#include "i2ctest.h"
-#include "i2c.h"
+#include "eeprom_utils.h"
 
 volatile uint32_t msTicks; // counter for 1ms SysTicks
 extern volatile unsigned int eint3_count;
@@ -91,7 +90,7 @@ int main(void) {
 			led_signal(0, 30, msTicks);
 			logger_logString("writing to eeprom ...");
 			led_on(2);
-			i2ctest_wr();
+			eeprom_set_uint32(0, 47110815);
 			led_off(2);
 			logger_logStringln("done");
 		}
@@ -101,13 +100,10 @@ int main(void) {
 			logger_logStringln("s0_1");
 			led_signal(1, 30, msTicks);
 			led_on(2);
-			i2ctest_rd();
+			uint32_t v = eeprom_get_uint32(0);
 			led_off(2);
 			logger_logStringln("EEPROM CONTENT:");
-			logger_logNumberln(I2CSlaveBuffer[0]);
-			logger_logNumberln(I2CSlaveBuffer[1]);
-			logger_logNumberln(I2CSlaveBuffer[2]);
-			logger_logNumberln(I2CSlaveBuffer[3]);
+			logger_logNumberln(v);
 		}
 
 	}
